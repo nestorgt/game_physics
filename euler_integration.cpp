@@ -12,12 +12,7 @@ int main ()
     float force = 10;
     float mass = 1;
 
-
-
-
-    // testing
-
-
+    // testing loop
     while ( t <= 10 )
     {
         // acceleration = force divided by mass
