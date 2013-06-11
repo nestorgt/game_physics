@@ -27,17 +27,26 @@ float acceleration(const State &state, float t)
 	return - k * state.x - b * state.v;
 }
 
+// recalculate derivatives with new location (for first derivate)
+Derivative evaluate(const State &initial, float t)
+{
+	Derivative output;
+	output.dx = initial.v;
+	output.dv = acceleration(initial, t);
+	return output;
+}
+
 // advance the physics state and recalculate derivatives with new location
 Derivative evaluate(const State &initial, float t, float dt, const Derivative &d)
 {
 	// state with new values, from t to t + dt
 	State state;
 	state.x = initial.x + d.dx * dt;
-	state.y = initial.y + d.dv * dt;
+	state.v = initial.v + d.dv * dt;
 	// recalculate the derivatives using new state
 	Derivative output;
 	output.dx = state.v;
-	output.dy = acceleration(state, t + dt);
+	output.dv = acceleration(state, t + dt);
 
 	return output;
 }
@@ -47,7 +56,7 @@ void integrate(State &state, float t, float dt)
 {
 	// RK4 samples derivates four times to detect curvature (Euler just once)
 	// uses previous derivative to calculate the next one
-	Derivative a = evaluate(state, t, 0.0f, Derivative());
+	Derivative a = evaluate(state, t);
 	Derivative b = evaluate(state, t, dt * 0.5f, a);
 	Derivative c = evaluate(state, t, dt * 0.5f, b);
 	Derivative d = evaluate(state, t, dt, c);
@@ -56,12 +65,28 @@ void integrate(State &state, float t, float dt)
 	const float dvdt = 1.0f/6.0f * (a.dv + 2.0f * (b.dv + c.dv) + d.dv);
 	// use previous derivative to advance the position and velocity over dt
 	state.x = state.x + dxdt * dt;
-	state.y = state.y + dvdt * dt;
+	state.v = state.v + dvdt * dt;
 }
 
 
 int main()
 {
+	// create a state
+	State state;
+	state.x = 1000;	// position
+	state.v = 0;	// velocity
+	
+	float t = 0;
+	float dt = 0.1f;
+	
+	// loop until loc=0 & v=0
+	while (fabs(state.x) > 0.001f || fabs(state.v) > 0.001f)
+	{
+		printf("x=%.2f, v=%.2f, t=%.2f, dt=%.2f\n", state.x, state.v, t, dt);
+		integrate(state, t, dt);
+		t += dt;
+	}
 
-	reuturn 0;
+	getc(stdin);
+	return 0;
 }
