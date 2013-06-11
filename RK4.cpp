@@ -68,7 +68,6 @@ void integrate(State &state, float t, float dt)
 	state.v = state.v + dvdt * dt;
 }
 
-
 int main()
 {
 	// create a state
@@ -87,6 +86,6 @@ int main()
 		t += dt;
 	}
 
-	getc(stdin);
+	//getc(stdin);
 	return 0;
 }
